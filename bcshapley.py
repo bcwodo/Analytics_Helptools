@@ -93,3 +93,16 @@ def rfimpo(df, target, features, itnum=100, depth=10, seed=123 ):
     out.index = features
     out.to_frame()
     return out
+
+def has_missings(df, target, features):
+    return df[[target]+features].isnull().values.any()
+
+
+def imp_median(df, target, features):
+    tofill = df[[target]+features].median()
+    out = df[[target]+features].fillna(tofill)
+    return out
+
+def count_missings(df, target, features):
+    return df[[target]+features].isnull().values.sum().sum()
+
