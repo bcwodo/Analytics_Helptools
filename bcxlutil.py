@@ -19,3 +19,16 @@ def xlsform(writer, sheet, cells = ["A", 1, "U", 15], fill = None, font = None, 
             if align != None:
                 ws.cell(row=z, column=c).alignment =  Alignment(horizontal=align)
                 
+def fill_palette(*args):
+    pattern = []
+    for c in args:
+        p = PatternFill(start_color=c, end_color=c, fill_type='solid')
+        pattern.append(p)
+    return pattern
+
+def get_font():
+    font0 = Font(size=11, bold=True, color='000000') # Big Black
+    font1 = Font(size=11, bold=True, color='FFFFFF') # Big White
+    font2 = Font(size=10, bold=False, color='000000') # Small Black
+    font3 = Font(size=10, bold=False, color='FFFFFF') # Small White
+    return [font0, font1, font2, font3]

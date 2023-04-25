@@ -34,3 +34,15 @@ def cor2rel_part(C, numcol, threshold=0.5):
     rel_df = pd.DataFrame(rel)
     rel_df.columns = ["Source", "Target", "Value"]
     return rel_df
+
+
+def weight_df(df, weight):
+    all_weights = df[weight].unique()
+    min_weight = all_weights.min()
+
+    w_df_list = []
+    for w in all_weights:
+        wfac = round(w/min_weight)
+        w_df_list += [df.loc[df[weight]==w] for _ in range(wfac)]
+    return pd.concat(w_df_list)
+
