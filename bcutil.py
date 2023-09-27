@@ -153,5 +153,5 @@ def generate_matrix_from_function(vector1, vector2, math_function):
     return result_matrix
 
 
-def sw(string, df=df):
+def sw(string, df):
     return [c for c in df.columns if c.startswith(string)]
