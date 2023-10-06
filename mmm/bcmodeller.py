@@ -4,6 +4,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 from sklearn import preprocessing
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 kantar_ad_stock_guide = {"banner": [0.45, 0.60],
@@ -154,4 +155,57 @@ def modell_optimizer(df, target, impression_var, shape_var, robyn_value, runs = 
             best_rob = rob_mult
             out = temp
     return out, best_rob
+
+
+def spend_graph(df, datevar, spendvar, l4, l5, gap=4, color=None, brand="", ylab= "Advertising Spend [in K€]"):
+    """
+    plottet spendings gegen die Zeit
+    df: Datensat
+    datevar: Datum
+    spendvar: spending
+    l4, l5: Media Kategorie
+    gap: Lücke zwischen Datumsdisplay, default = 4
+    color: Balkenfarbe default = None (palette)
+    brand: Markenname
+    ylab: Label der Y-Achse, default 'Advertising Spend [in K€]'
+
+
+    """
+    # Create a modern-looking bar chart with custom styling
+    plt.figure(figsize=(12, 6))  # Set the figure size
+
+    # Use a custom color palette for a modern look
+    sns.set_palette('viridis')
+
+    # Use a dark grid style for a modern edge
+    sns.set_style('darkgrid')
+
+    # Create the bar chart with adjusted bar width and no gap between bars
+    if color == None:
+        ax = sns.barplot(x=datevar, y=spendvar, data=df, errorbar=None, saturation=0.75, width=0.85)
+    else:
+        ax = sns.barplot(x=datevar, y=spendvar, data=df, errorbar=None, saturation=0.75, width=0.85, color = color)
+
+    # Customize the plot
+    #plt.title('Advertising Spend Over Time', fontsize=18, fontweight='bold')
+    plt.text(0.5, 1.15, f'Advertising Spend Over Time {brand}', fontsize=18, fontweight='bold', ha='center', va='center', transform=ax.transAxes)
+    plt.text(0.5, 1.075, f'{l4} | {l5}', fontsize=14, ha='center', va='center', transform=ax.transAxes)
+    plt.xlabel('', fontsize=14, fontweight='bold')
+    plt.ylabel(ylab, fontsize=14, fontweight='bold')
+    #plt.xticks(rotation=90, fontsize=12)
+    plt.yticks(fontsize=12)
+
+    xlab = []
+    for i, d in enumerate(df.Date.values):
+        if i % gap==0:
+            xlab.append(d)
+        else:
+            xlab.append("")
+
+    ax.set_xticklabels(xlab)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
+    #ax.set_xlabel('')
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
 
