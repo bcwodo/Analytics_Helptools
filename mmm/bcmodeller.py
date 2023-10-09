@@ -157,7 +157,7 @@ def modell_optimizer(df, target, impression_var, shape_var, robyn_value, runs = 
     return out, best_rob
 
 
-def spend_graph(df, datevar, spendvar, l4, l5, gap=4, color=None, brand="", ylab= "Advertising Spend [in K€]"):
+def spend_graph(df, datevar, spendvar, l4, l5, gap=4, color=None, brand="", ylab= "Advertising Spend [in K€]", save=None):
     """
     plottet spendings gegen die Zeit
     df: Datensat
@@ -207,5 +207,11 @@ def spend_graph(df, datevar, spendvar, l4, l5, gap=4, color=None, brand="", ylab
     #ax.set_xlabel('')
     # Show the plot
     plt.tight_layout()
-    plt.show()
+    if save == None:
+        plt.show()
+    else:
+        plt.savefig(save)
+        plt.close()
+
+
 

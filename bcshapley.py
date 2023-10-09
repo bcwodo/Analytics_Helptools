@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.metrics import r2_score
 
 
-def shapreg(df, target, features, itnum=500, depth=3, indicator=True, seed=123):
+def shapreg(df, target, features, itnum=500, depth=3, indicator=True, norm= True, seed=123):
 
     np.random.seed(seed)
     coef_all_iter = dict((el,[]) for el in features)
@@ -31,7 +31,8 @@ def shapreg(df, target, features, itnum=500, depth=3, indicator=True, seed=123):
             coef_all_iter[f].append(r2_post)
 
     out = pd.DataFrame(dict([ (k,pd.Series(v, dtype="float64")) for k,v in coef_all_iter.items() ]))
-    out = out.mean() / out.mean().sum()
+    if norm == True:
+        out = out.mean() / out.mean().sum()
     return out
 
 
