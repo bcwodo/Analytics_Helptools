@@ -33,6 +33,8 @@ def shapreg(df, target, features, itnum=500, depth=3, indicator=True, norm= True
     out = pd.DataFrame(dict([ (k,pd.Series(v, dtype="float64")) for k,v in coef_all_iter.items() ]))
     if norm == True:
         out = out.mean() / out.mean().sum()
+    else:
+        out = out.mean()
     return out
 
 

@@ -2,7 +2,6 @@
 *.db
 *.eff
 *.Log
-*.txt
 *.doc
 *.pwds
 *.idx
