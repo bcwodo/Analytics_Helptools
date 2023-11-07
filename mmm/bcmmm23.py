@@ -31,6 +31,17 @@ def transform(x, alpha, gamma, theta, grow=True):
         temp3 = temp3 * get_growth(n=len(x))
     return temp3
 
+def transform_long(param_df, data_df, variable="L5"):
+    for v in param_df[variable].values:
+      alpha = param_df.loc[param_df[variable] == v, "alpha"].values[0]
+      gamma = param_df.loc[param_df[variable] == v, "gamma"].values[0]
+      theta = param_df.loc[param_df[variable] == v, "theta"].values[0]
+      input_vector = data_df.loc[data_df[variable] == v, "impressions"].values
+      output_vector = transform(input_vector, alpha=alpha, gamma=gamma, theta=theta)
+      data_df.loc[data_df[variable] == v, "impressions_shaped"] = output_vector
+    return data_df
+
+
 def transform_from_robyn(param, data):
     for v in param.variabel.values:
     # Get Params
@@ -95,11 +106,28 @@ def mmm_optimizer_channel(param, data):
         spend_var = data[f"spend_{v}"]
         performance = param.loc[param.variabel == v, "performance"].values[0]
         # Add Noise to split
-        sigma = 0.05
+        # sigma = 0.05
         mu = param.loc[param.variabel == v, "split"].values[0]
-        split = sigma * np.random.randn(len(spend_var)) + mu
+        split = mu # + sigma * np.random.randn(len(spend_var))
         area_contribution = spend_var.sum() * performance
         area_shapevar = shape_var.sum()
         data[f"contribution_{v}"] = shape_var / area_shapevar * area_contribution
         data[f"bm_contribution_{v}"] = data[f"contribution_{v}"] * split
         data[f"oa_contribution_{v}"] = data[f"contribution_{v}"] - data[f"bm_contribution_{v}"]
+        
+ def mmm_optimizer_long(param_df, data_df, variable="L5"):
+    for v in param_df[variable].values:
+        # Get Params
+        shape_var = data_df.loc[data_df[variable] == v, "impressions_shaped"].values
+        spend_var = data_df.loc[data_df[variable] == v, "spendings"].values
+        rho = param_df.loc[param_df[variable] == v, "rho"].values[0]
+        tau = param_df.loc[param_df[variable] == v, "tau"].values[0]
+        # Calculation
+        area_contribution = spend_var.sum() * rho
+        area_shapevar = shape_var.sum()
+        data_df.loc[data_df[variable] == v, "contribution"] = shape_var / area_shapevar * area_contribution
+        data_df.loc[data_df[variable] == v, "bm_contribution"] = data_df.loc[data_df[variable] == v, "contribution"] * tau
+        data_df.loc[data_df[variable] == v, "oa_contribution"] = data_df.loc[data_df[variable] == v, "contribution"] * (1-tau)
+    return data_df
+    
+

@@ -214,4 +214,134 @@ def spend_graph(df, datevar, spendvar, l4, l5, gap=4, color=None, brand="", ylab
         plt.close()
 
 
+def spend_imp_graph(df, datevar, spendvar, impvar, l4, l5, gap=4, color=None, brand="", ylab= "Advertising Spend [in K€]",  ylab2= "Impressions [in Mio.]", save=None):
+    """
+    plottet spendings gegen die Zeit
+    df: Datensat
+    datevar: Datum
+    spendvar: spending
+    l4, l5: Media Kategorie
+    gap: Lücke zwischen Datumsdisplay, default = 4
+    color: Balkenfarbe default = None (palette)
+    brand: Markenname
+    ylab: Label der Y-Achse, default 'Advertising Spend [in K€]'
+
+
+    """
+    # Create a modern-looking bar chart with custom styling
+    plt.figure(figsize=(12, 6))  # Set the figure size
+
+    # Use a custom color palette for a modern look
+    sns.set_palette('viridis')
+
+    # Use a dark grid style for a modern edge
+    sns.set_style('dark')
+    fig, ax = plt.subplots(figsize=(12, 6))
+   
+
+    # Create the bar chart with adjusted bar width and no gap between bars
+    if color == None:
+        ax = sns.barplot(x=datevar, y=spendvar, data=df, errorbar=None, saturation=0.75, width=0.85)
+    else:
+        ax = sns.barplot(x=datevar, y=spendvar, data=df, errorbar=None, saturation=0.75, width=0.85, color = color, zorder=2)
+        ax2 = ax.twinx()
+        ax2.plot(df[datevar], df[impvar], color='dimgray', marker='o', zorder=1)
+
+    # Customize the plot
+    #plt.title('Advertising Spend Over Time', fontsize=18, fontweight='bold')
+    plt.text(0.5, 1.15, f'Advertising Spend Over Time {brand}', fontsize=18, fontweight='bold', ha='center', va='center', transform=ax.transAxes)
+    plt.text(0.5, 1.075, f'{l4} | {l5}', fontsize=14, ha='center', va='center', transform=ax.transAxes)
+    plt.xlabel('', fontsize=14, fontweight='bold')
+    ax.set_ylabel(ylab, fontsize=14, fontweight='bold')
+    #plt.xticks(rotation=90, fontsize=12)
+    plt.yticks(fontsize=12)
+
+    xlab = []
+    for i, d in enumerate(df.Date.values):
+        if i % gap==0:
+            xlab.append(d)
+        else:
+            xlab.append("")
+    # Set the y-axis label for impressions
+    ax2.set_ylabel(ylab2, color='k', fontsize=14, fontweight='bold')
+    #ax2.tick_params('y', colors='b')
+
+    ax.set_xticklabels(xlab)
+    #ax.set_zorder(1)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
+    #ax.set_xlabel('')
+    # Show the plot
+    ax.legend(loc='upper left', bbox_to_anchor=(0, -0.2), ncol=2)
+    plt.tight_layout()
+    if save == None:
+        plt.show()
+    else:
+        plt.savefig(save)
+        plt.close()
+
+
+def spend_imp_graph(df, datevar, spendvar, impvar, l4, l5, gap=4, color=None, brand="", ylab= "Advertising Spend [in K€]",  ylab2= "Impressions [in Mio.]", save=None):
+    """
+    plottet spendings gegen die Zeit
+    df: Datensat
+    datevar: Datum
+    spendvar: spending
+    l4, l5: Media Kategorie
+    gap: Lücke zwischen Datumsdisplay, default = 4
+    color: Balkenfarbe default = None (palette)
+    brand: Markenname
+    ylab: Label der Y-Achse, default 'Advertising Spend [in K€]'
+
+
+    """
+    # Create a modern-looking bar chart with custom styling
+    plt.figure(figsize=(12, 6))  # Set the figure size
+
+    # Use a custom color palette for a modern look
+    sns.set_palette('viridis')
+
+    # Use a dark grid style for a modern edge
+    sns.set_style('dark')
+    fig, ax = plt.subplots(figsize=(12, 6))
+   
+
+    # Create the bar chart with adjusted bar width and no gap between bars
+    if color == None:
+        ax = sns.barplot(x=datevar, y=spendvar, data=df, errorbar=None, saturation=0.75, width=0.85)
+    else:
+        ax = sns.barplot(x=datevar, y=spendvar, data=df, errorbar=None, saturation=0.75, width=0.85, color = color, zorder=2, label='Spendings')
+        ax2 = ax.twinx()
+        ax2.plot(df[datevar], df[impvar], color='dimgray', marker='o', zorder=1, label='Impressions')
+
+    # Customize the plot
+    #plt.title('Advertising Spend Over Time', fontsize=18, fontweight='bold')
+    plt.text(0.5, 1.15, f'Advertising Spend Over Time {brand}', fontsize=18, fontweight='bold', ha='center', va='center', transform=ax.transAxes)
+    plt.text(0.5, 1.075, f'{l4} | {l5}', fontsize=14, ha='center', va='center', transform=ax.transAxes)
+    plt.xlabel('', fontsize=14, fontweight='bold')
+    ax.set_ylabel(ylab, fontsize=14, fontweight='bold')
+    #plt.xticks(rotation=90, fontsize=12)
+    plt.yticks(fontsize=12)
+
+    xlab = []
+    for i, d in enumerate(df.Date.values):
+        if i % gap==0:
+            xlab.append(d)
+        else:
+            xlab.append("")
+    # Set the y-axis label for impressions
+    ax2.set_ylabel(ylab2, color='k', fontsize=14, fontweight='bold')
+    #ax2.tick_params('y', colors='b')
+
+    ax.set_xticklabels(xlab)
+    #ax.set_zorder(1)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
+    #ax.set_xlabel('')
+    # Show the plot
+    fig.legend(loc='upper left', bbox_to_anchor=(0, -0.03), ncol=2)
+    plt.tight_layout()
+    if save == None:
+        plt.show()
+    else:
+        plt.savefig(save)
+        plt.close()
 
