@@ -22,22 +22,38 @@ def adstock_geometric(x: float, theta: float):
 def normalize(a):
     b = (a - np.min(a))/np.ptp(a)
     return b
+    
+def max_to_one(a):
+    m = np.max(a)
+    b = a/m
+    return b
 
-def transform(x, alpha, gamma, theta, grow=True):
+def transform(x, alpha, gamma, theta, grow=True, growth_range=0.2):
     temp1 = normalize(x)
     temp2 = adstock_geometric(temp1, theta)
     temp3 = saturation_hill(temp2, alpha, gamma)
     if grow==True:
-        temp3 = temp3 * get_growth(n=len(x))
+        temp3 = temp3 * get_growth(n=len(x), range=growth_range)
     return temp3
 
-def transform_long(param_df, data_df, variable="L5"):
+
+def transform_long(param_df, data_df, variable="L4L5", channel="bm"):
     for v in param_df[variable].values:
       alpha = param_df.loc[param_df[variable] == v, "alpha"].values[0]
       gamma = param_df.loc[param_df[variable] == v, "gamma"].values[0]
       theta = param_df.loc[param_df[variable] == v, "theta"].values[0]
       input_vector = data_df.loc[data_df[variable] == v, "impressions"].values
-      output_vector = transform(input_vector, alpha=alpha, gamma=gamma, theta=theta)
+      output_vector = transform(input_vector, alpha=alpha, gamma=gamma, theta=theta, grow=False)
+      data_df.loc[data_df[variable] == v, f"impressions_shaped_{channel}"] = output_vector
+    return data_df
+    
+def transform_long_only_hill(param_df, data_df, variable="L5"):
+    for v in param_df[variable].values:
+      data_df.loc[data_df[variable] == v, "impressions_to_one"] = max_to_one(data_df.loc[data_df[variable] == v, "impressions"].values)
+      alpha = param_df.loc[param_df[variable] == v, "alpha"].values[0]
+      gamma = param_df.loc[param_df[variable] == v, "gamma"].values[0]
+      input_vector = data_df.loc[data_df[variable] == v, "impressions_to_one"].values
+      output_vector = saturation_hill(input_vector, alpha=alpha, gamma=gamma)
       data_df.loc[data_df[variable] == v, "impressions_shaped"] = output_vector
     return data_df
 
@@ -115,19 +131,29 @@ def mmm_optimizer_channel(param, data):
         data[f"bm_contribution_{v}"] = data[f"contribution_{v}"] * split
         data[f"oa_contribution_{v}"] = data[f"contribution_{v}"] - data[f"bm_contribution_{v}"]
         
- def mmm_optimizer_long(param_df, data_df, variable="L5"):
+def mmm_optimizer_long(param_df, data_df, variable="L4L5", channel="bm", exact=False, seed=123, grow=False):
+    np.random.seed(seed)
     for v in param_df[variable].values:
         # Get Params
-        shape_var = data_df.loc[data_df[variable] == v, "impressions_shaped"].values
+        shape_var = data_df.loc[data_df[variable] == v, f"impressions_shaped_{channel}"].values
         spend_var = data_df.loc[data_df[variable] == v, "spendings"].values
         rho = param_df.loc[param_df[variable] == v, "rho"].values[0]
         tau = param_df.loc[param_df[variable] == v, "tau"].values[0]
+        if grow == True:
+            delta = param_df.loc[param_df[variable] == v, "delta"].values[0]
+            delta_mult = get_growth(len(shape_var), range=delta)
+        else:
+            delta_mult = np.repeat(1, len(shape_var))
         # Calculation
-        area_contribution = spend_var.sum() * rho
+        if exact == True or rho ==0:
+            area_contribution = spend_var.sum() * rho
+        else:
+            area_contribution = spend_var.sum() * (rho + np.random.rand()/100)
         area_shapevar = shape_var.sum()
-        data_df.loc[data_df[variable] == v, "contribution"] = shape_var / area_shapevar * area_contribution
-        data_df.loc[data_df[variable] == v, "bm_contribution"] = data_df.loc[data_df[variable] == v, "contribution"] * tau
-        data_df.loc[data_df[variable] == v, "oa_contribution"] = data_df.loc[data_df[variable] == v, "contribution"] * (1-tau)
+
+        if channel == "bm":
+            data_df.loc[data_df[variable] == v, f"{channel}_contribution"] = (shape_var / area_shapevar * area_contribution) * tau * delta_mult
+        elif channel == "oa":
+            data_df.loc[data_df[variable] == v, f"{channel}_contribution"] = (shape_var / area_shapevar * area_contribution) * (1-tau) * delta_mult
     return data_df
-    
 
